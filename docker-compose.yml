@@ -1,0 +1,35 @@
+version: "1.0"
+services:
+
+    mariadb:
+      image: mariadb:10.1
+      container_name: yoga-mariadb
+      working_dir: /application
+      volumes:
+        - "${DATA_PATH}:/application"
+      environment:
+        - "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}"
+        - "MYSQL_DATABASE=${MYSQL_DATABASE}"
+        - "MYSQL_USER=${MYSQL_USER}"
+        - "MYSQL_PASSWORD=${MYSQL_PASSWORD}"
+      ports:
+        - "${PUBLIC_PORT_MYSQL}:3306"
+
+    webserver:
+      image: nginx:alpine
+      container_name: yoga-webserver
+      working_dir: /application
+      volumes:
+          - "${DATA_PATH}:/application"
+          - "${DATA_PATH}/${CONFIG_DIR}/nginx/nginx.conf:/etc/nginx/conf.d/default.conf"
+      ports:
+       - "${PUBLIC_PORT_APPLICATION}:80"
+
+    php-fpm:
+      build: ${CONFIG_DIR}/php-fpm
+      container_name: yoga-php-fpm
+      working_dir: /application
+      volumes:
+        - "${DATA_PATH}:/application"
+        - "${DATA_PATH}/${CONFIG_DIR}/php-fpm/php-ini-overrides.ini:/etc/php/7.2/fpm/conf.d/99-overrides.ini"
+
